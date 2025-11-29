@@ -2,7 +2,7 @@
   "name": "HD Brasil Soluções - Sistema Técnico",
   "short_name": "HBS Sistema",
   "description": "Sistema de Gestão Técnica - Laudos e Consultas",
-  "start_url": "/HBS-2.html",
+  "start_url": "/index.html",
   "display": "standalone",
   "background_color": "#2c3e50",
   "theme_color": "#2c3e50",
@@ -21,4 +21,5 @@
       "purpose": "any maskable"
     }
   ]
+
 }
