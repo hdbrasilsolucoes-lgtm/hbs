@@ -1,0 +1,1894 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HD Brasil Soluções - Sistema Técnico</title>
+    <!-- ADICIONE ESTAS LINHAS DENTRO DA TAG <head>, LOGO APÓS <title> -->
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2c3e50">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="HBS Sistema">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+
+
+<!-- ADICIONE ESTE CÓDIGO LOGO ANTES DO </body> (no final do arquivo) -->
+
+<script>
+  // Registrar Service Worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(registration => {
+          console.log('Service Worker registrado com sucesso:', registration.scope);
+        })
+        .catch(error => {
+          console.log('Falha ao registrar Service Worker:', error);
+        });
+    });
+  }
+  
+  // Detectar instalação do PWA
+  let deferredPrompt;
+  
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    console.log('App pode ser instalado!');
+  });
+  
+  window.addEventListener('appinstalled', () => {
+    console.log('App instalado com sucesso!');
+    deferredPrompt = null;
+  });
+</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --success-color: #2ecc71;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+            --warning-color: #f39c12;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--dark-color));
+            color: white;
+            padding: 25px 0;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .logo-icon {
+            font-size: 32px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            margin-bottom: 25px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        h1, h2, h3 {
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+        
+        h1 {
+            font-size: 28px;
+        }
+        
+        h2 {
+            font-size: 22px;
+            border-bottom: 2px solid var(--light-color);
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+            outline: none;
+        }
+        
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .cascade-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .photo-upload {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .photo-item {
+            text-align: center;
+        }
+        
+        .photo-preview {
+            width: 100%;
+            height: 180px;
+            border: 2px dashed #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            overflow: hidden;
+            border-radius: 8px;
+        }
+        
+        .photo-preview img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
+        .btn {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 14px 25px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.3s, transform 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-danger {
+            background-color: var(--accent-color);
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        
+        .btn-success {
+            background-color: var(--success-color);
+        }
+        
+        .btn-success:hover {
+            background-color: #27ae60;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            margin-top: 25px;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-aprovado {
+            background-color: var(--success-color);
+        }
+        
+        .status-reprovado {
+            background-color: var(--accent-color);
+        }
+        
+        .status-garantia-negada {
+            background-color: var(--warning-color);
+        }
+        
+        .alert {
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .alert-warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .required::after {
+            content: " *";
+            color: var(--accent-color);
+        }
+        
+        .readonly-field {
+            background-color: #f8f9fa;
+            color: #6c757d;
+        }
+        
+        @media (max-width: 768px) {
+            .cascade-container, .photo-upload {
+                grid-template-columns: 1fr;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+        }
+
+        .laudo-preview {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.4;
+            color: #333;
+            font-size: 12px;
+            padding: 15px;
+            background: white;
+        }
+        
+        .laudo-header {
+            text-align: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #2c3e50;
+            padding-bottom: 10px;
+        }
+        
+        .laudo-header h1 {
+            font-size: 18px;
+            margin: 0;
+            color: #2c3e50;
+        }
+        
+        .laudo-section {
+            margin-bottom: 12px;
+            page-break-inside: avoid;
+        }
+        
+        .laudo-section h3 {
+            font-size: 14px;
+            color: #2c3e50;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+            margin-bottom: 8px;
+        }
+        
+        .laudo-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 6px 0;
+            font-size: 11px;
+        }
+        
+        .laudo-table td {
+            padding: 5px 8px;
+            border: 1px solid #ddd;
+            vertical-align: top;
+        }
+        
+        .laudo-table td:first-child {
+            width: 30%;
+            font-weight: 600;
+            background-color: #f8f9fa;
+        }
+        
+        /* LAYOUT PARA AS FOTOS - 2 fileiras com 3 imagens cada */
+        .photo-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 8px;
+        }
+        
+        .photo-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+        }
+        
+        .photo-item-preview {
+            flex: 1;
+            text-align: center;
+            page-break-inside: avoid;
+            min-width: 0;
+        }
+        
+        .photo-item-preview img {
+            max-width: 100%;
+            max-height: 150px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+        }
+        
+        .footer-info {
+            margin-top: 15px;
+            text-align: center;
+            font-style: italic;
+            color: #666;
+            font-size: 10px;
+            border-top: 1px solid #ddd;
+            padding-top: 8px;
+        }
+        
+        .assinatura-digital {
+            margin-top: 10px;
+            padding: 10px;
+            border-top: 1px dashed #ddd;
+            text-align: center;
+            font-size: 9px;
+        }
+        
+        .cnpj-info {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        /* Estilos para a página inicial */
+        .home-page {
+            text-align: center;
+            padding: 30px 20px;
+        }
+        
+        .home-page h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+        
+        .home-page p {
+            font-size: 18px;
+            margin-bottom: 40px;
+            color: var(--dark-color);
+        }
+        
+        .feature-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+        }
+        
+        .feature-button {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 300px;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+        
+        .feature-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .feature-button h3 {
+            font-size: 22px;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+        
+        .feature-button p {
+            font-size: 16px;
+            margin-bottom: 20px;
+            color: var(--dark-color);
+        }
+        
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            color: var(--secondary-color);
+        }
+        
+        /* Estilos para a página de consulta de OS */
+        .consulta-page {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .search-container {
+            position: relative;
+        }
+        
+        .suggestions-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 6px 6px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 100;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .suggestion-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .suggestion-item:hover {
+            background-color: #f5f7fa;
+        }
+        
+        .result-container {
+            margin-top: 30px;
+        }
+        
+        .result-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        .result-table th, .result-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .result-table th {
+            background-color: var(--light-color);
+            font-weight: 600;
+        }
+        
+        .result-table tr:hover {
+            background-color: #f9f9f9;
+        }
+        
+        .back-button {
+            background-color: var(--dark-color);
+            margin-bottom: 20px;
+        }
+        
+        .back-button:hover {
+            background-color: var(--primary-color);
+        }
+        
+        /* Estilos para o popup de sucesso */
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .popup-content {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .popup-icon {
+            font-size: 64px;
+            color: var(--success-color);
+            margin-bottom: 20px;
+        }
+        
+        .popup-title {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+        
+        .popup-message {
+            margin-bottom: 25px;
+            color: var(--dark-color);
+        }
+        
+        .popup-button {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+        
+        .popup-button:hover {
+            background-color: #2980b9;
+        }
+        
+        /* Estilos para o status do banco de dados */
+        .database-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 6px;
+            background-color: #f8f9fa;
+        }
+        
+        .status-indicator-db {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .status-connected {
+            background-color: var(--success-color);
+        }
+        
+        .status-disconnected {
+            background-color: var(--accent-color);
+        }
+        
+        .status-text {
+            font-weight: 600;
+        }
+        
+        .system-info {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Página Inicial -->
+    <div id="home-page" class="container home-page">
+        <header>
+            <div class="logo">
+                <span class="logo-icon">⚙️</span>
+                HD BRASIL SOLUÇÕES
+            </div>
+            <h1 style="color: white;">Sistema de Gestão Técnica</h1>
+            <p>Soluções completas para gerenciamento de serviços técnicos</p>
+        </header>
+        
+        <div class="card">
+            <h2>Configuração do Sistema</h2>
+            <div class="form-group">
+                <label for="database-file" class="required">Carregar Banco de Dados (XLSX)</label>
+                <input type="file" id="database-file" accept=".xlsx">
+                <small>Arquivo deve conter as planilhas "Dados da OS" e "Tabela de Serviço"</small>
+            </div>
+            
+            <div id="database-status" class="database-status hidden">
+                <span class="status-indicator-db" id="status-indicator"></span>
+                <span class="status-text" id="status-text">Banco de dados carregado com sucesso!</span>
+            </div>
+        </div>
+        
+        <div class="feature-buttons">
+            <div class="feature-button" onclick="showPage('laudo-page')">
+                <div class="feature-icon">📋</div>
+                <h3>Laudo Técnico</h3>
+                <p>Gerencie e envie laudos técnicos de forma eficiente</p>
+                <button class="btn">Acessar</button>
+            </div>
+            
+            <div class="feature-button" onclick="showPage('consulta-page')">
+                <div class="feature-icon">🔍</div>
+                <h3>Consulta de O.S</h3>
+                <p>Consulte ordens de serviço por número de série</p>
+                <button class="btn">Acessar</button>
+            </div>
+        </div>
+        
+        <div class="system-info">
+            <div>HD Brasil Soluções - CNPJ: 11.335.406/0001-41</div>
+            <div id="system-time">Sistema carregado</div>
+        </div>
+    </div>
+
+    <!-- Página de Laudo Técnico (existente) -->
+    <div id="laudo-page" class="container hidden">
+        <button class="btn back-button" onclick="showPage('home-page')">← Voltar para Página Inicial</button>
+        
+        <header>
+            <div class="logo">
+                <span class="logo-icon">📋</span>
+                HD BRASIL SOLUÇÕES
+            </div>
+            <h1 style="color: white;">Sistema de Laudo Técnico Fotográfico</h1>
+            <p>Gerencie e envie laudos técnicos de forma eficiente</p>
+        </header>
+        
+        <div id="alert-container"></div>
+        
+        <div class="card">
+            <h2>Informações da Ordem de Serviço</h2>
+            <div class="form-group">
+                <label for="os-number" class="required">Número da O.S</label>
+                <input type="text" id="os-number" placeholder="Digite o número da O.S">
+            </div>
+            <div class="form-group">
+                <label for="cliente">Cliente</label>
+                <input type="text" id="cliente" readonly class="readonly-field">
+            </div>
+            <div class="form-group">
+                <label for="produto">Produto</label>
+                <input type="text" id="produto" readonly class="readonly-field">
+            </div>
+            <div class="form-group">
+                <label for="numero-serie">Número de Série</label>
+                <input type="text" id="numero-serie" readonly class="readonly-field">
+            </div>
+            <div class="form-group">
+                <label for="defeito-relatado">Defeito Relatado</label>
+                <input type="text" id="defeito-relatado" readonly class="readonly-field">
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Serviço Realizado</h2>
+            <div class="cascade-container">
+                <div class="form-group">
+                    <label for="categoria" class="required">Categoria do Produto</label>
+                    <select id="categoria">
+                        <option value="">Selecione</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="local" class="required">Local</label>
+                    <select id="local">
+                        <option value="">Selecione</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="defeito" class="required">Defeito</label>
+                    <select id="defeito">
+                        <option value="">Selecione</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="generico" class="required">Genérico</label>
+                    <select id="generico">
+                        <option value="">Selecione</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="servico" class="required">Serviço</label>
+                    <select id="servico">
+                        <option value="">Selecione</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="status" class="required">Status</label>
+                    <select id="status">
+                        <option value="">Selecione</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="descricao-servico">Descrição do Serviço</label>
+                <textarea id="descricao-servico" readonly class="readonly-field"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="nivel">Nível</label>
+                <input type="text" id="nivel" readonly class="readonly-field">
+            </div>
+            
+            <div class="form-group">
+                <label for="codigo">Código</label>
+                <input type="text" id="codigo" readonly class="readonly-field">
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Fotos do Produto/ Processo</h2>
+            <div class="photo-upload">
+                <div class="photo-item">
+                    <div class="photo-preview" id="preview-1">
+                        <span>Embalagem</span>
+                    </div>
+                    <input type="file" id="foto-1" accept="image/*" class="photo-input">
+                    <button class="btn btn-danger" onclick="removePhoto(1)">Remover</button>
+                </div>
+                
+                <div class="photo-item">
+                    <div class="photo-preview" id="preview-2">
+                        <span>Acessórios</span>
+                    </div>
+                    <input type="file" id="foto-2" accept="image/*" class="photo-input">
+                    <button class="btn btn-danger" onclick="removePhoto(2)">Remover</button>
+                </div>
+                
+                <div class="photo-item">
+                    <div class="photo-preview" id="preview-3">
+                        <span>Número de Série</span>
+                    </div>
+                    <input type="file" id="foto-3" accept="image/*" class="photo-input">
+                    <button class="btn btn-danger" onclick="removePhoto(3)">Remover</button>
+                </div>
+                
+                <div class="photo-item">
+                    <div class="photo-preview" id="preview-4">
+                        <span>Detalhes Visuais</span>
+                    </div>
+                    <input type="file" id="foto-4" accept="image/*" class="photo-input">
+                    <button class="btn btn-danger" onclick="removePhoto(4)">Remover</button>
+                </div>
+                
+                <div class="photo-item">
+                    <div class="photo-preview" id="preview-5">
+                        <span>Defeito Encontrado</span>
+                    </div>
+                    <input type="file" id="foto-5" accept="image/*" class="photo-input">
+                    <button class="btn btn-danger" onclick="removePhoto(5)">Remover</button>
+                </div>
+                
+                <div class="photo-item">
+                    <div class="photo-preview" id="preview-6">
+                        <span>Conclusão</span>
+                    </div>
+                    <input type="file" id="foto-6" accept="image/*" class="photo-input">
+                    <button class="btn btn-danger" onclick="removePhoto(6)">Remover</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Técnico Responsável</h2>
+            <div class="form-group">
+                <label for="tecnico" class="required">Técnico</label>
+                <select id="tecnico">
+                    <option value="">Selecione</option>
+                    <option value="Cardoso">Cardoso</option>
+                    <option value="Eduardo">Eduardo</option>
+                    <option value="Diones">Diones</option>
+                    <option value="Davi">Davi</option>
+                    <option value="Ricardo">Ricardo</option>
+                    <option value="Romes">Romes</option>
+                    <option value="Christian">Christian</option>
+                    <option value="Angela">Angela</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="observacoes">Observações Adicionais</label>
+                <textarea id="observacoes" placeholder="Digite observações adicionais, se necessário"></textarea>
+            </div>
+        </div>
+        
+        <div class="btn-group">
+            <button class="btn btn-success" id="btn-send">
+                <span>📧</span> Enviar Laudo por E-mail
+            </button>
+            <button class="btn btn-danger" id="btn-clear">
+                <span>🗑️</span> Limpar Formulário
+            </button>
+        </div>
+    </div>
+
+    <!-- Página de Consulta de OS (nova) -->
+    <div id="consulta-page" class="container hidden consulta-page">
+        <button class="btn back-button" onclick="showPage('home-page')">← Voltar para Página Inicial</button>
+        
+        <header>
+            <div class="logo">
+                <span class="logo-icon">🔍</span>
+                HD BRASIL SOLUÇÕES
+            </div>
+            <h1 style="color: white;">Consulta de Ordem de Serviço</h1>
+            <p>Localize O.S. por número de série</p>
+        </header>
+        
+        <div class="card">
+            <h2>Consulta por Número de Série</h2>
+            <div class="form-group">
+                <label for="numero-serie-consulta" class="required">Número de Série</label>
+                <div class="search-container">
+                    <input type="text" id="numero-serie-consulta" placeholder="Digite o número de série">
+                    <div id="suggestions" class="suggestions-list hidden"></div>
+                </div>
+            </div>
+            
+            <div class="result-container">
+                <h3>Resultado da Consulta</h3>
+                <div id="resultado-consulta">
+                    <p>Digite um número de série para consultar a O.S correspondente.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Popup de Sucesso -->
+    <div id="success-popup" class="popup-overlay hidden">
+        <div class="popup-content">
+            <div class="popup-icon">✅</div>
+            <h2 class="popup-title">Laudo Enviado com Sucesso!</h2>
+            <p class="popup-message">O laudo técnico foi enviado por e-mail com sucesso. Você pode preencher um novo laudo agora.</p>
+            <button class="popup-button" onclick="closeSuccessPopup()">OK</button>
+        </div>
+    </div>
+
+    <div id="pdf-content" class="laudo-preview" style="position: absolute; left: -9999px; top: -9999px;"></div>
+
+    <script>
+        // Variáveis globais
+        let dadosOS = [];
+        let tabelaServico = [];
+        let currentServiceData = null;
+        
+        // CONFIGURAÇÕES DO EMAILJS
+        const emailjsConfig = {
+            publicKey: 'QKvXeeENdrRELUhdI',
+            serviceId: 'service_91tq0kd',
+            templateId: 'template_wpa83oh',
+            emailDestino: 'ordemdeservicohbs@gmail.com'
+        };
+        
+        // Inicializar EmailJS
+        emailjs.init(emailjsConfig.publicKey);
+        
+        // Elementos do DOM
+        const databaseFileInput = document.getElementById('database-file');
+        const databaseStatus = document.getElementById('database-status');
+        const statusIndicator = document.getElementById('status-indicator');
+        const statusText = document.getElementById('status-text');
+        const osNumberInput = document.getElementById('os-number');
+        const clienteInput = document.getElementById('cliente');
+        const produtoInput = document.getElementById('produto');
+        const numeroSerieInput = document.getElementById('numero-serie');
+        const defeitoRelatadoInput = document.getElementById('defeito-relatado');
+        const categoriaSelect = document.getElementById('categoria');
+        const localSelect = document.getElementById('local');
+        const defeitoSelect = document.getElementById('defeito');
+        const genericoSelect = document.getElementById('generico');
+        const servicoSelect = document.getElementById('servico');
+        const statusSelect = document.getElementById('status');
+        const descricaoServicoInput = document.getElementById('descricao-servico');
+        const nivelInput = document.getElementById('nivel');
+        const codigoInput = document.getElementById('codigo');
+        const tecnicoSelect = document.getElementById('tecnico');
+        const observacoesInput = document.getElementById('observacoes');
+        const btnSend = document.getElementById('btn-send');
+        const btnClear = document.getElementById('btn-clear');
+        const alertContainer = document.getElementById('alert-container');
+        const pdfContent = document.getElementById('pdf-content');
+        const successPopup = document.getElementById('success-popup');
+        const systemTime = document.getElementById('system-time');
+        
+        // Elementos da nova página de consulta
+        const numeroSerieConsultaInput = document.getElementById('numero-serie-consulta');
+        const suggestionsContainer = document.getElementById('suggestions');
+        const resultadoConsultaContainer = document.getElementById('resultado-consulta');
+        
+        // Event Listeners para a página de laudo técnico
+        databaseFileInput.addEventListener('change', handleDatabaseUpload);
+        osNumberInput.addEventListener('input', searchOS);
+        categoriaSelect.addEventListener('change', updateLocalOptions);
+        localSelect.addEventListener('change', updateDefeitoOptions);
+        defeitoSelect.addEventListener('change', updateGenericoOptions);
+        genericoSelect.addEventListener('change', updateServicoOptions);
+        servicoSelect.addEventListener('change', updateStatusOptions);
+        statusSelect.addEventListener('change', autoFillServiceData);
+        
+        // Configurar eventos para upload de fotos
+        document.querySelectorAll('.photo-input').forEach(input => {
+            input.addEventListener('change', handlePhotoUpload);
+        });
+        
+        btnSend.addEventListener('click', sendLaudo);
+        btnClear.addEventListener('click', clearForm);
+        
+        // Event Listeners para a página de consulta
+        numeroSerieConsultaInput.addEventListener('input', searchSerie);
+        
+        // Atualizar hora do sistema
+        function updateSystemTime() {
+            const now = new Date();
+            systemTime.textContent = `Sistema carregado - ${now.toLocaleDateString('pt-BR')} ${now.toLocaleTimeString('pt-BR')}`;
+        }
+        
+        // Mostrar alerta de configuração carregada
+        window.addEventListener('load', function() {
+            updateSystemTime();
+            setInterval(updateSystemTime, 60000); // Atualizar a cada minuto
+            showAlert('Sistema carregado! Carregue o banco de dados para começar.', 'success');
+        });
+        
+        // Funções de navegação
+        function showPage(pageId) {
+            // Verificar se o banco de dados foi carregado
+            if (pageId !== 'home-page' && dadosOS.length === 0) {
+                showAlert('Por favor, carregue o banco de dados na página inicial antes de acessar esta funcionalidade.', 'error');
+                return;
+            }
+            
+            // Esconder todas as páginas
+            document.getElementById('home-page').classList.add('hidden');
+            document.getElementById('laudo-page').classList.add('hidden');
+            document.getElementById('consulta-page').classList.add('hidden');
+            
+            // Mostrar a página solicitada
+            document.getElementById(pageId).classList.remove('hidden');
+        }
+        
+        // Função para fechar o popup de sucesso
+        function closeSuccessPopup() {
+            successPopup.classList.add('hidden');
+            clearForm();
+        }
+        
+        // Funções para a página de consulta
+        function searchSerie() {
+            const searchTerm = numeroSerieConsultaInput.value.trim().toLowerCase();
+            
+            // Limpar sugestões se o campo estiver vazio
+            if (!searchTerm) {
+                suggestionsContainer.classList.add('hidden');
+                suggestionsContainer.innerHTML = '';
+                return;
+            }
+            
+            // Filtrar números de série que começam com o termo digitado
+            const filteredSeries = dadosOS.filter(item => {
+                const serie = getSerieValue(item);
+                return serie && serie.toLowerCase().startsWith(searchTerm);
+            });
+            
+            // Exibir sugestões
+            if (filteredSeries.length > 0) {
+                suggestionsContainer.innerHTML = '';
+                filteredSeries.forEach(item => {
+                    const serie = getSerieValue(item);
+                    const div = document.createElement('div');
+                    div.className = 'suggestion-item';
+                    div.textContent = serie;
+                    div.addEventListener('click', () => {
+                        numeroSerieConsultaInput.value = serie;
+                        suggestionsContainer.classList.add('hidden');
+                        showOSResult(item);
+                    });
+                    suggestionsContainer.appendChild(div);
+                });
+                suggestionsContainer.classList.remove('hidden');
+            } else {
+                suggestionsContainer.classList.add('hidden');
+            }
+            
+            // Se o termo de busca corresponde exatamente a um número de série, mostrar resultado
+            const exactMatch = dadosOS.find(item => {
+                const serie = getSerieValue(item);
+                return serie && serie.toLowerCase() === searchTerm;
+            });
+            
+            if (exactMatch) {
+                showOSResult(exactMatch);
+            } else {
+                resultadoConsultaContainer.innerHTML = '<p>Nenhuma O.S encontrada para este número de série.</p>';
+            }
+        }
+        
+        function getSerieValue(item) {
+            return item.numeroSerie || item['numeroSerie'] || 
+                   item['Número de Série'] || item['Numero de Serie'] || 
+                   item['Nº Série'] || item.serie || '';
+        }
+        
+        function showOSResult(osData) {
+            console.log('OS encontrada:', osData);
+            
+            let html = `
+                <table class="result-table">
+                    <tr>
+                        <th>Número da O.S</th>
+                        <td>${osData['O.S'] || osData.OS || osData['Número OS'] || osData.NumeroOS || ''}</td>
+                    </tr>
+                    <tr>
+                        <th>Cliente</th>
+                        <td>${osData.Cliente || osData.cliente || ''}</td>
+                    </tr>
+                    <tr>
+                        <th>Produto</th>
+                        <td>${osData.produto || osData.Produto || ''}</td>
+                    </tr>
+                    <tr>
+                        <th>Número de Série</th>
+                        <td>${getSerieValue(osData)}</td>
+                    </tr>
+                    <tr>
+                        <th>Defeito Relatado</th>
+                        <td>${osData.relatado || osData['relatado'] || 
+                             osData['Defeito Relatado'] || osData['defeito relatado'] || ''}</td>
+                    </tr>
+                </table>
+            `;
+            
+            resultadoConsultaContainer.innerHTML = html;
+        }
+        
+        // Funções existentes para a página de laudo técnico
+        function handleDatabaseUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                
+                console.log('Planilhas encontradas:', workbook.SheetNames);
+                
+                // Carregar dados da OS
+                if (workbook.Sheets['Dados da OS']) {
+                    dadosOS = XLSX.utils.sheet_to_json(workbook.Sheets['Dados da OS']);
+                    console.log('Dados da OS carregados:', dadosOS);
+                    
+                    // Atualizar status do banco de dados
+                    databaseStatus.classList.remove('hidden');
+                    statusIndicator.className = 'status-indicator-db status-connected';
+                    statusText.textContent = `Banco de dados carregado com sucesso! ${dadosOS.length} registros encontrados.`;
+                    
+                    showAlert('Banco de dados carregado com sucesso! ' + dadosOS.length + ' registros encontrados.', 'success');
+                } else {
+                    showAlert('Planilha "Dados da OS" não encontrada.', 'error');
+                    return;
+                }
+                
+                // Carregar tabela de serviço
+                if (workbook.Sheets['Tabela de Serviço']) {
+                    tabelaServico = XLSX.utils.sheet_to_json(workbook.Sheets['Tabela de Serviço']);
+                    console.log('Tabela de Serviço carregada:', tabelaServico);
+                    populateCategoriaOptions();
+                    
+                    // Atualizar status do banco de dados
+                    statusText.textContent = `Banco de dados carregado com sucesso! ${dadosOS.length} registros e ${tabelaServico.length} serviços disponíveis.`;
+                    
+                    showAlert('Tabela de serviços carregada! ' + tabelaServico.length + ' serviços disponíveis.', 'success');
+                } else {
+                    showAlert('Planilha "Tabela de Serviço" não encontrada.', 'error');
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+        
+        function searchOS() {
+            const osNumber = osNumberInput.value.trim();
+            if (!osNumber) return;
+            
+            console.log('Buscando OS:', osNumber);
+            
+            const osData = dadosOS.find(item => {
+                return item['O.S'] == osNumber || 
+                       item['OS'] == osNumber || 
+                       item['Número OS'] == osNumber ||
+                       item['Numero OS'] == osNumber;
+            });
+            
+            if (osData) {
+                console.log('OS encontrada:', osData);
+                clienteInput.value = osData.Cliente || osData.cliente || '';
+                produtoInput.value = osData.produto || osData.Produto || '';
+                numeroSerieInput.value = getSerieValue(osData);
+                defeitoRelatadoInput.value = osData.relatado || osData['relatado'] || 
+                                           osData['Defeito Relatado'] || osData['defeito relatado'] || '';
+                showAlert('Dados da O.S carregados com sucesso!', 'success');
+            } else {
+                console.log('OS não encontrada.');
+                clienteInput.value = '';
+                produtoInput.value = '';
+                numeroSerieInput.value = '';
+                defeitoRelatadoInput.value = '';
+                showAlert('O.S não encontrada no banco de dados.', 'error');
+            }
+        }
+        
+        function populateCategoriaOptions() {
+            categoriaSelect.innerHTML = '<option value="">Selecione</option>';
+            const categorias = [...new Set(tabelaServico.map(item => item['categoria do produto']))];
+            
+            console.log('Categorias encontradas:', categorias);
+            
+            categorias.forEach(categoria => {
+                const option = document.createElement('option');
+                option.value = categoria;
+                option.textContent = categoria;
+                categoriaSelect.appendChild(option);
+            });
+        }
+        
+        function updateLocalOptions() {
+            const categoria = categoriaSelect.value;
+            localSelect.innerHTML = '<option value="">Selecione</option>';
+            defeitoSelect.innerHTML = '<option value="">Selecione</option>';
+            genericoSelect.innerHTML = '<option value="">Selecione</option>';
+            servicoSelect.innerHTML = '<option value="">Selecione</option>';
+            statusSelect.innerHTML = '<option value="">Selecione</option>';
+            
+            if (!categoria) return;
+            
+            const locais = [...new Set(tabelaServico
+                .filter(item => item['categoria do produto'] === categoria)
+                .map(item => item.local))];
+                
+            console.log('Locais para categoria', categoria, ':', locais);
+            
+            locais.forEach(local => {
+                const option = document.createElement('option');
+                option.value = local;
+                option.textContent = local;
+                localSelect.appendChild(option);
+            });
+            
+            clearServiceDetails();
+        }
+        
+        function updateDefeitoOptions() {
+            const categoria = categoriaSelect.value;
+            const local = localSelect.value;
+            defeitoSelect.innerHTML = '<option value="">Selecione</option>';
+            genericoSelect.innerHTML = '<option value="">Selecione</option>';
+            servicoSelect.innerHTML = '<option value="">Selecione</option>';
+            statusSelect.innerHTML = '<option value="">Selecione</option>';
+            
+            if (!categoria || !local) return;
+            
+            const defeitos = [...new Set(tabelaServico
+                .filter(item => 
+                    item['categoria do produto'] === categoria && 
+                    item.local === local)
+                .map(item => item.defeito))];
+                
+            console.log('Defeitos para categoria', categoria, 'e local', local, ':', defeitos);
+            
+            defeitos.forEach(defeito => {
+                const option = document.createElement('option');
+                option.value = defeito;
+                option.textContent = defeito;
+                defeitoSelect.appendChild(option);
+            });
+            
+            clearServiceDetails();
+        }
+        
+        function updateGenericoOptions() {
+            const categoria = categoriaSelect.value;
+            const local = localSelect.value;
+            const defeito = defeitoSelect.value;
+            genericoSelect.innerHTML = '<option value="">Selecione</option>';
+            servicoSelect.innerHTML = '<option value="">Selecione</option>';
+            statusSelect.innerHTML = '<option value="">Selecione</option>';
+            
+            if (!categoria || !local || !defeito) return;
+            
+            const genericos = [...new Set(tabelaServico
+                .filter(item => 
+                    item['categoria do produto'] === categoria && 
+                    item.local === local &&
+                    item.defeito === defeito)
+                .map(item => item.generico))];
+                
+            console.log('Genéricos para categoria', categoria, ', local', local, 'e defeito', defeito, ':', genericos);
+            
+            genericos.forEach(generico => {
+                const option = document.createElement('option');
+                option.value = generico;
+                option.textContent = generico;
+                genericoSelect.appendChild(option);
+            });
+            
+            clearServiceDetails();
+        }
+        
+        function updateServicoOptions() {
+            const categoria = categoriaSelect.value;
+            const local = localSelect.value;
+            const defeito = defeitoSelect.value;
+            const generico = genericoSelect.value;
+            servicoSelect.innerHTML = '<option value="">Selecione</option>';
+            statusSelect.innerHTML = '<option value="">Selecione</option>';
+            
+            if (!categoria || !local || !defeito || !generico) return;
+            
+            const servicos = [...new Set(tabelaServico
+                .filter(item => 
+                    item['categoria do produto'] === categoria && 
+                    item.local === local &&
+                    item.defeito === defeito &&
+                    item.generico === generico)
+                .map(item => item.serviço))];
+                
+            console.log('Serviços encontrados:', servicos);
+            
+            servicos.forEach(servico => {
+                const option = document.createElement('option');
+                option.value = servico;
+                option.textContent = servico;
+                servicoSelect.appendChild(option);
+            });
+            
+            clearServiceDetails();
+        }
+        
+        function updateStatusOptions() {
+            const categoria = categoriaSelect.value;
+            const local = localSelect.value;
+            const defeito = defeitoSelect.value;
+            const generico = genericoSelect.value;
+            const servico = servicoSelect.value;
+            statusSelect.innerHTML = '<option value="">Selecione</option>';
+            
+            if (!categoria || !local || !defeito || !generico || !servico) return;
+            
+            const statusOptions = [...new Set(tabelaServico
+                .filter(item => 
+                    item['categoria do produto'] === categoria && 
+                    item.local === local &&
+                    item.defeito === defeito &&
+                    item.generico === generico &&
+                    item.serviço === servico)
+                .map(item => item.status))];
+                
+            console.log('Status encontrados:', statusOptions);
+            
+            statusOptions.forEach(status => {
+                const option = document.createElement('option');
+                option.value = status;
+                option.textContent = status;
+                statusSelect.appendChild(option);
+            });
+            
+            clearServiceDetails();
+        }
+        
+        function autoFillServiceData() {
+            const categoria = categoriaSelect.value;
+            const local = localSelect.value;
+            const defeito = defeitoSelect.value;
+            const generico = genericoSelect.value;
+            const servico = servicoSelect.value;
+            const status = statusSelect.value;
+            
+            if (!categoria || !local || !defeito || !generico || !servico || !status) return;
+            
+            currentServiceData = tabelaServico.find(item => 
+                item['categoria do produto'] === categoria && 
+                item.local === local &&
+                item.defeito === defeito &&
+                item.generico === generico &&
+                item.serviço === servico &&
+                item.status === status);
+            
+            if (currentServiceData) {
+                console.log('Dados do serviço encontrados:', currentServiceData);
+                descricaoServicoInput.value = currentServiceData['descrição do serviço'] || 
+                                             currentServiceData['Descrição do Serviço'] ||
+                                             currentServiceData.descricao || 
+                                             currentServiceData['Descrição'] || '';
+                
+                nivelInput.value = currentServiceData.nivel || 
+                                  currentServiceData['nivel'] || 
+                                  currentServiceData['Nível'] || 
+                                  currentServiceData.nível || '';
+                
+                codigoInput.value = currentServiceData.codigo || 
+                                   currentServiceData['codigo'] || 
+                                   currentServiceData['Código'] || 
+                                   currentServiceData.código || '';
+                
+                showAlert('Dados do serviço carregados com sucesso!', 'success');
+            } else {
+                console.log('Dados do serviço não encontrados');
+                clearServiceDetails();
+            }
+        }
+        
+        function clearServiceDetails() {
+            descricaoServicoInput.value = '';
+            nivelInput.value = '';
+            codigoInput.value = '';
+            currentServiceData = null;
+        }
+        
+        function handlePhotoUpload(event) {
+            const file = event.target.files[0];
+            const photoId = event.target.id.split('-')[1];
+            const preview = document.getElementById(`preview-${photoId}`);
+            
+            if (file) {
+                if (!file.type.match('image.*')) {
+                    showAlert('Por favor, selecione apenas arquivos de imagem.', 'error');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.innerHTML = `<img src="${e.target.result}" alt="Foto ${photoId}">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        function removePhoto(photoId) {
+            const input = document.getElementById(`foto-${photoId}`);
+            const preview = document.getElementById(`preview-${photoId}`);
+            
+            input.value = '';
+            
+            // Atualizar para mostrar o nome correto da foto
+            const photoNames = {
+                1: "Embalagem",
+                2: "Acessórios", 
+                3: "Número de Série",
+                4: "Detalhes Visuais",
+                5: "Defeito Encontrado",
+                6: "Conclusão"
+            };
+            
+            preview.innerHTML = `<span>${photoNames[photoId]}</span>`;
+        }
+        
+        // Função para gerar o conteúdo do PDF
+        function generatePDFContent() {
+            const data = getFormData();
+            
+            // Carregar todas as imagens primeiro
+            const photoPromises = [];
+            for (let i = 1; i <= 6; i++) {
+                const photoInput = document.getElementById(`foto-${i}`);
+                if (photoInput.files.length > 0) {
+                    photoPromises.push(new Promise(resolve => {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            resolve({ index: i, data: e.target.result });
+                        };
+                        reader.readAsDataURL(photoInput.files[0]);
+                    }));
+                }
+            }
+            
+            return Promise.all(photoPromises).then(photos => {
+                // Mapear os índices para os nomes das fotos
+                const photoNames = {
+                    1: "Embalagem",
+                    2: "Acessórios", 
+                    3: "Número de Série",
+                    4: "Detalhes Visuais",
+                    5: "Defeito Encontrado",
+                    6: "Conclusão"
+                };
+                
+                // Determinar a classe CSS do status
+                let statusClass = '';
+                if (data.status.toLowerCase().includes('aprovado')) {
+                    statusClass = 'status-aprovado';
+                } else if (data.status.toLowerCase().includes('reprovado')) {
+                    statusClass = 'status-reprovado';
+                } else if (data.status.toLowerCase().includes('garantia') && data.status.toLowerCase().includes('negada')) {
+                    statusClass = 'status-garantia-negada';
+                } else {
+                    statusClass = 'status-reprovado'; // padrão
+                }
+                
+                let html = `
+                    <div class="laudo-header">
+                        <h1>LAUDO TÉCNICO FOTOGRÁFICO</h1>
+                        <p>Relatório de Serviços Técnicos - HD Brasil Soluções</p>
+                    </div>
+                    
+                    <div class="laudo-section">
+                        <h3>Dados da Ordem de Serviço</h3>
+                        <table class="laudo-table">
+                            <tr>
+                                <td>Número da O.S:</td>
+                                <td>${data.osNumber}</td>
+                            </tr>
+                            <tr>
+                                <td>Cliente:</td>
+                                <td>${data.cliente}</td>
+                            </tr>
+                            <tr>
+                                <td>Produto:</td>
+                                <td>${data.produto}</td>
+                            </tr>
+                            <tr>
+                                <td>Número de Série:</td>
+                                <td>${numeroSerieInput.value}</td>
+                            </tr>
+                            <tr>
+                                <td>Defeito Relatado:</td>
+                                <td>${defeitoRelatadoInput.value}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    
+                    <div class="laudo-section">
+                        <h3>Serviço Realizado</h3>
+                        <table class="laudo-table">
+                            <tr>
+                                <td>Categoria:</td>
+                                <td>${data.categoria}</td>
+                            </tr>
+                            <tr>
+                                <td>Local:</td>
+                                <td>${data.local}</td>
+                            </tr>
+                            <tr>
+                                <td>Defeito:</td>
+                                <td>${data.defeito}</td>
+                            </tr>
+                            <tr>
+                                <td>Genérico:</td>
+                                <td>${data.generico}</td>
+                            </tr>
+                            <tr>
+                                <td>Serviço:</td>
+                                <td>${data.servico}</td>
+                            </tr>
+                            <tr>
+                                <td>Status:</td>
+                                <td>
+                                    <span class="status-indicator ${statusClass}"></span>
+                                    ${data.status}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Descrição do Serviço:</td>
+                                <td>${data.descricaoServico}</td>
+                            </tr>
+                            <tr>
+                                <td>Nível:</td>
+                                <td>${data.nivel}</td>
+                            </tr>
+                            <tr>
+                                <td>Código:</td>
+                                <td>${data.codigo}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    
+                    <div class="laudo-section">
+                        <h3>Fotos do Produto/ Processo</h3>
+                        <div class="photo-grid">
+                `;
+                
+                // LAYOUT: 2 fileiras com 3 imagens cada
+                if (photos.length > 0) {
+                    // Primeira fileira (fotos 1-3)
+                    html += `<div class="photo-row">`;
+                    for (let i = 0; i < Math.min(3, photos.length); i++) {
+                        const photoIndex = photos[i].index;
+                        html += `
+                            <div class="photo-item-preview">
+                                <img src="${photos[i].data}" alt="${photoNames[photoIndex]}">
+                                <p>${photoNames[photoIndex]}</p>
+                            </div>
+                        `;
+                    }
+                    html += `</div>`;
+                    
+                    // Segunda fileira (fotos 4-6)
+                    if (photos.length > 3) {
+                        html += `<div class="photo-row">`;
+                        for (let i = 3; i < Math.min(6, photos.length); i++) {
+                            const photoIndex = photos[i].index;
+                            html += `
+                                <div class="photo-item-preview">
+                                    <img src="${photos[i].data}" alt="${photoNames[photoIndex]}">
+                                    <p>${photoNames[photoIndex]}</p>
+                                </div>
+                            `;
+                        }
+                        html += `</div>`;
+                    }
+                }
+                
+                html += `
+                        </div>
+                    </div>
+                    
+                    <div class="laudo-section">
+                        <h3>Informações do Técnico</h3>
+                        <table class="laudo-table">
+                            <tr>
+                                <td>Técnico Responsável:</td>
+                                <td>${data.tecnico}</td>
+                            </tr>
+                            <tr>
+                                <td>Observações:</td>
+                                <td>${data.observacoes || 'Nenhuma observação adicional'}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    
+                    <div class="footer-info">
+                        <p>Laudo gerado em ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}</p>
+                        <div class="assinatura-digital">
+                            <div class="cnpj-info">HD Brasil Soluções - CNPJ: 11.335.406/0001-41</div>
+                            <p>Este laudo técnico foi gerado eletronicamente pela HD Brasil Soluções e constitui documento oficial válido para todos os fins legais.</p>
+                            <p>Assinatura Digital: ${data.tecnico} - Técnico Responsável</p>
+                        </div>
+                    </div>
+                `;
+                
+                pdfContent.innerHTML = html;
+                return photos.length;
+            });
+        }
+
+        // Função para gerar PDF como Base64 (QUALIDADE BALANCEADA)
+        function generatePDFAsBase64() {
+            return new Promise((resolve, reject) => {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF('p', 'mm', 'a4');
+                
+                // CONFIGURAÇÕES BALANCEADAS (boa qualidade + arquivo menor)
+                html2canvas(pdfContent, {
+                    scale: 1.8, // Balanceado entre qualidade e tamanho
+                    useCORS: true,
+                    logging: false,
+                    backgroundColor: '#ffffff',
+                    width: pdfContent.scrollWidth,
+                    height: pdfContent.scrollHeight
+                }).then(canvas => {
+                    try {
+                        // QUALIDADE BALANCEADA - JPEG com 85% de qualidade
+                        const imgData = canvas.toDataURL('image/jpeg', 0.85);
+                        
+                        const imgWidth = doc.internal.pageSize.getWidth() - 15;
+                        const pageHeight = doc.internal.pageSize.getHeight();
+                        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                        
+                        let position = 10;
+                        let heightLeft = imgHeight;
+                        
+                        // Primeira página
+                        doc.addImage(imgData, 'JPEG', 7.5, position, imgWidth, imgHeight);
+                        heightLeft -= pageHeight;
+                        
+                        // Páginas adicionais
+                        while (heightLeft >= 0) {
+                            position = heightLeft - imgHeight + 10;
+                            doc.addPage();
+                            doc.addImage(imgData, 'JPEG', 7.5, position, imgWidth, imgHeight);
+                            heightLeft -= pageHeight;
+                        }
+                        
+                        // GERAR PDF COM NOME CORRETO
+                        const fileName = `Laudo_Tecnico_${osNumberInput.value}.pdf`;
+                        
+                        // Retornar objeto com base64 e nome do arquivo
+                        const pdfOutput = doc.output('datauristring');
+                        const base64 = pdfOutput.split(',')[1];
+                        
+                        console.log('PDF gerado com qualidade balanceada');
+                        console.log('Nome do arquivo:', fileName);
+                        console.log('Tamanho do PDF (KB):', Math.round(base64.length * 0.75) / 1000);
+                        
+                        resolve({
+                            base64: base64,
+                            fileName: fileName
+                        });
+                    } catch (error) {
+                        reject(error);
+                    }
+                }).catch(reject);
+            });
+        }
+        
+        // FUNÇÃO PRINCIPAL DE ENVIO DO LAUDO
+        async function sendLaudo() {
+            if (!validateForm()) return;
+            
+            btnSend.disabled = true;
+            btnSend.innerHTML = '<span class="loading"></span> Enviando...';
+            
+            try {
+                // Gerar conteúdo do PDF
+                const fotosCount = await generatePDFContent();
+                
+                // Obter dados do formulário
+                const data = getFormData();
+                
+                // Determinar o status para o assunto do email
+                let statusAssunto = '';
+                if (data.status.toLowerCase().includes('aprovado')) {
+                    statusAssunto = 'Aprovado';
+                } else if (data.status.toLowerCase().includes('reprovado')) {
+                    statusAssunto = 'Reprovado';
+                } else if (data.status.toLowerCase().includes('garantia') && data.status.toLowerCase().includes('negada')) {
+                    statusAssunto = 'Garantia Negada';
+                } else {
+                    statusAssunto = data.status;
+                }
+                
+                // NOME DO ARQUIVO CORRETO
+                const fileName = `Laudo_Tecnico_${data.osNumber}.pdf`;
+                
+                // Gerar o PDF em base64
+                const pdfData = await generatePDFAsBase64();
+                
+                // Preparar template parameters
+                const templateParams = {
+                    to_email: emailjsConfig.emailDestino,
+                    os_number: data.osNumber,
+                    cliente: data.cliente,
+                    produto: data.produto,
+                    numero_serie: numeroSerieInput.value,
+                    defeito_relatado: defeitoRelatadoInput.value,
+                    categoria: data.categoria,
+                    local: data.local,
+                    defeito: data.defeito,
+                    generico: data.generico,
+                    servico: data.servico,
+                    status: data.status,
+                    status_assunto: statusAssunto, // Novo campo para o assunto
+                    descricao_servico: data.descricaoServico,
+                    nivel: data.nivel,
+                    codigo: data.codigo,
+                    tecnico: data.tecnico,
+                    observacoes: data.observacoes || 'Nenhuma observação adicional',
+                    data_geracao: new Date().toLocaleString('pt-BR'),
+                    // DADOS DO ANEXO
+                    attachment: pdfData.base64,
+                    pdf_filename: fileName
+                };
+                
+                console.log('Enviando laudo...');
+                console.log('Nome do arquivo:', fileName);
+                console.log('Status para assunto:', statusAssunto);
+                
+                // Enviar email
+                const response = await emailjs.send(
+                    emailjsConfig.serviceId, 
+                    emailjsConfig.templateId, 
+                    templateParams
+                );
+                
+                console.log('Laudo enviado com sucesso:', response);
+                
+                // Mostrar popup de sucesso
+                successPopup.classList.remove('hidden');
+                
+            } catch (error) {
+                console.error('Erro ao enviar laudo:', error);
+                showAlert('❌ Erro ao enviar. Tente novamente.', 'error');
+            } finally {
+                btnSend.disabled = false;
+                btnSend.innerHTML = '<span>📧</span> Enviar Laudo por E-mail';
+            }
+        }
+        
+        function clearForm() {
+            // Limpar todos os campos do formulário
+            document.querySelectorAll('input, select, textarea').forEach(element => {
+                if (element.type !== 'file') {
+                    element.value = '';
+                }
+            });
+            
+            // Limpar previews de fotos
+            for (let i = 1; i <= 6; i++) {
+                removePhoto(i);
+            }
+            
+            // Resetar dados
+            currentServiceData = null;
+            
+            showAlert('Formulário limpo com sucesso!', 'success');
+        }
+        
+        function getFormData() {
+            return {
+                osNumber: osNumberInput.value,
+                cliente: clienteInput.value,
+                produto: produtoInput.value,
+                categoria: categoriaSelect.value,
+                local: localSelect.value,
+                defeito: defeitoSelect.value,
+                generico: genericoSelect.value,
+                servico: servicoSelect.value,
+                status: statusSelect.value,
+                descricaoServico: descricaoServicoInput.value,
+                nivel: nivelInput.value,
+                codigo: codigoInput.value,
+                tecnico: tecnicoSelect.value,
+                observacoes: observacoesInput.value
+            };
+        }
+        
+        function validateForm() {
+            const requiredFields = [
+                { element: osNumberInput, name: 'Número da O.S' },
+                { element: categoriaSelect, name: 'Categoria' },
+                { element: localSelect, name: 'Local' },
+                { element: defeitoSelect, name: 'Defeito' },
+                { element: genericoSelect, name: 'Genérico' },
+                { element: servicoSelect, name: 'Serviço' },
+                { element: statusSelect, name: 'Status' },
+                { element: tecnicoSelect, name: 'Técnico' }
+            ];
+            
+            for (let field of requiredFields) {
+                if (!field.element.value) {
+                    showAlert(`O campo "${field.name}" é obrigatório.`, 'error');
+                    field.element.focus();
+                    return false;
+                }
+            }
+            
+            // Verificar se pelo menos uma foto foi adicionada
+            let hasPhotos = false;
+            for (let i = 1; i <= 6; i++) {
+                if (document.getElementById(`foto-${i}`).files.length > 0) {
+                    hasPhotos = true;
+                    break;
+                }
+            }
+            
+            if (!hasPhotos) {
+                showAlert('É necessário adicionar pelo menos uma foto.', 'error');
+                return false;
+            }
+            
+            return true;
+        }
+        
+        function showAlert(message, type) {
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            
+            alertContainer.appendChild(alert);
+            
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
